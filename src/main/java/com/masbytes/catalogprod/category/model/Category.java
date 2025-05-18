@@ -34,9 +34,9 @@ public class Category extends AuditingEntity {
     /**
      * Description of the category
      */
-    @Column(name = "description", length = 255)
+    @Column(name = "description", nullable = false, length = 255)
     @NotBlank(message = "DESCRIPTION field is required")
-    @Size(min = 5, max = 255, message = "DESCRIPTION field must be between 3 and 255 characters")
+    @Size(min = 5, max = 255, message = "DESCRIPTION field must be between 5 and 255 characters")
     private String description;
 
     // No-args constructor
@@ -50,55 +50,46 @@ public class Category extends AuditingEntity {
         this.description = description;
     }
 
+    // Constructor with ID
+    public Category(Long id, String name, String description) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.description = description;
+    }
+
     // Getters and Setters
-    /**
-     * @return Long return the id
-     */
+
     public Long getId() {
         return id;
     }
 
-    /**
-     * @param id the id to set, ONLY FOR TESTING PURPOSES
-     */
-    public void setId(Long id) {
+    protected void setId(Long id) {
         this.id = id;
     }
 
-    /**
-     * @return String return the name
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * @param name the name to set
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * @return String return the description
-     */
     public String getDescription() {
         return description;
     }
 
-    /**
-     * @param description the description to set
-     */
     public void setDescription(String description) {
         this.description = description;
     }
 
-    /**
-     * return info's instance
-     */
     @Override
     public String toString() {
-        return "Category [id=" + id + ", status=" + status + ", name=" + name + ", description=" + description + "]";
+        return String.format("Category [id=%s, name=%s, description=%s]",
+                id != null ? id.toString() : "null",
+                name != null ? name : "null",
+                description != null ? description : "null");
     }
 
 }

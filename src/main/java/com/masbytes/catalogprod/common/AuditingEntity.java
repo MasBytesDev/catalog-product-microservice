@@ -60,60 +60,35 @@ public class AuditingEntity {
     }
 
     // Getters and Setters
-    /**
-     * @return LocalDateTime return the createdAt
-     */
+    
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-
-    /**
-     * @param createdAt
-     */
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    /**
-     * @return LocalDateTime return the updatedAt
-     */
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    /**
-     * 
-     * @param updatedAt
-     */
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    /**
-     * @return LocalDateTime return the deletedAt
-     */
     public LocalDateTime getDeletedAt() {
         return deletedAt;
     }
 
-    /**
-     * @param deletedAt
-     */
     public void setDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
     }
 
-    /**
-     * @return Status return the status
-     */
     public Status getStatus() {
         return status;
     }
 
-    /**
-     * @param status the status to set
-     */
     public void setStatus(Status status) {
         this.status = status;
     }
