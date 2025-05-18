@@ -1,4 +1,4 @@
-package com.masbytes.catalogprod.mapper;
+package com.masbytes.catalogprod.category.mapper;
 
 import java.util.Collections;
 import java.util.List;
