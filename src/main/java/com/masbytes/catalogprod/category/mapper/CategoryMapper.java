@@ -5,24 +5,22 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Component;
-
 import com.masbytes.catalogprod.category.dto.CategoryRequestDTO;
 import com.masbytes.catalogprod.category.dto.CategoryResponseDTO;
 import com.masbytes.catalogprod.category.dto.UpdateCategoryDTO;
 import com.masbytes.catalogprod.category.model.Category;
 import com.masbytes.catalogprod.enums.Status;
 
-@Component
 public class CategoryMapper {
 
     /**
-     * Convert a DTO to an entity.
-     * 
-     * @param dto to convert.
-     * @return a new entity.
+     * Converts a CategoryRequestDTO to a Category entity.
+     *
+     * @param dto The DTO to convert.
+     * @return A new Category entity, or null if the input is null.
      */
-    public Category toEntity(CategoryRequestDTO dto) {
+
+    public static Category toEntity(CategoryRequestDTO dto) {
         if (dto == null) {
             return null;
         }
@@ -40,7 +38,8 @@ public class CategoryMapper {
      * @param entity to convert.
      * @return a new ResponseDTO.
      */
-    public CategoryResponseDTO toResponseDTO(Category entity) {
+
+    public static CategoryResponseDTO toResponseDTO(Category entity) {
         if (entity == null) {
             return null;
         }
@@ -56,13 +55,15 @@ public class CategoryMapper {
     }
 
     /**
-     * Update a Category entity with the values from a UpdateCategoryDTO.
-     * 
-     * @param entity to update.
-     * @param dto    to update the entity with.
-     * @return the updated entity.
+     * Updates a Category entity using the values provided in an UpdateCategoryDTO.
+     *
+     * Fields with null or blank values will be ignored.
+     *
+     * @param entity The Category entity to update.
+     * @param dto    The DTO containing updated values.
      */
-    public void updateEntity(Category entity, UpdateCategoryDTO dto) {
+
+    public static void updateEntity(Category entity, UpdateCategoryDTO dto) {
         if (entity == null || dto == null) {
             return;
         }
@@ -88,13 +89,14 @@ public class CategoryMapper {
      * @return a new list of ResponseDTOs.
      *         If the list is null or empty, an empty list is returned.
      */
-    public List<CategoryResponseDTO> toResponseDTOList(List<Category> categories) {
+    
+    public static List<CategoryResponseDTO> toResponseDTOList(List<Category> categories) {
         if (categories == null || categories.isEmpty()) {
             return Collections.emptyList();
         }
 
         return categories.stream()
-                .map(this::toResponseDTO)
+                .map(CategoryMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
