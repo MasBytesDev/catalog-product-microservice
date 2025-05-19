@@ -26,11 +26,12 @@ public interface CategoryService {
      * Retrieves a category by its ID.
      *
      * @param id the unique identifier of the category to retrieve
-     * @return an {@link Optional} containing the {@link CategoryResponseDTO} if
-     *         found, or an empty {@code Optional} otherwise.
+     * @return the category as a {@link CategoryResponseDTO}
+     * @throws CategoryNotFoundException if no category with the given ID exists
+     *         or if the category is logically deleted  
      */
 
-    Optional<CategoryResponseDTO> getCategoryById(Long id);
+    CategoryResponseDTO getCategoryById(Long id);
 
     /**
      * Retrieves a category by its name.

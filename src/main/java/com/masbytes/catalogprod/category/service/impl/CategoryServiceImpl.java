@@ -7,11 +7,13 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.masbytes.catalogprod.category.dto.CategoryRequestDTO;
 import com.masbytes.catalogprod.category.dto.CategoryResponseDTO;
 import com.masbytes.catalogprod.category.dto.UpdateCategoryDTO;
 import com.masbytes.catalogprod.category.exception.database.CategoryAlreadyExistsException;
+import com.masbytes.catalogprod.category.exception.database.CategoryNotFoundException;
 import com.masbytes.catalogprod.category.exception.validation.CategoryInvalidDataException;
 import com.masbytes.catalogprod.category.mapper.CategoryMapper;
 import com.masbytes.catalogprod.category.model.Category;
@@ -20,7 +22,6 @@ import com.masbytes.catalogprod.category.service.CategoryService;
 import com.masbytes.catalogprod.category.validation.CategoryValidator;
 import com.masbytes.catalogprod.enums.Status;
 
-import jakarta.transaction.Transactional;
 
 /**
  * CategoryServiceImpl
@@ -65,7 +66,7 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryValidator.validateCategoryRequest(dto);
 
         // Normalize the category name
-        // by trimming and converting it to uppercase        
+        // by trimming and converting it to uppercase
         String normalizedName = dto.getName().trim().toUpperCase(Locale.ROOT);
 
         // Check if a category with the same name already exists
@@ -84,10 +85,36 @@ public class CategoryServiceImpl implements CategoryService {
 
     }
 
+    /**
+     * Retrieves a category by its ID.
+     * 
+     * Validates the input ID, checks if the category exists in the database,
+     * and returns the corresponding CategoryResponseDTO.
+     * 
+     * @param id The ID of the category to retrieve.
+     * @return a CategoryResponseDTO containing the category data.
+     * @throws CategoryInvalidDataException if the ID is null or invalid.
+     */
+
     @Override
-    public Optional<CategoryResponseDTO> getCategoryById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCategoryById'");
+    @Transactional(readOnly = true)
+    public CategoryResponseDTO getCategoryById(Long id) {
+
+        // Check if the ID is null and throw an exception if it is
+        if (id == null) {
+            throw new CategoryInvalidDataException("Category ID cannot be null");
+        }
+
+        // Find the category by ID using the repository and map it to a response DTO
+        // If the category is not found, throw a CategoryNotFoundException
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + id));
+
+        // Map the found category to a response DTO
+        // and return it wrapped in an Optional
+        // If the category is null, return an empty Optional
+        // Otherwise, return the mapped response DTO
+        return CategoryMapper.toResponseDTO(category);
     }
 
     @Override

@@ -2,22 +2,29 @@ package com.masbytes.catalogprod.category.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.masbytes.catalogprod.category.dto.CategoryRequestDTO;
 import com.masbytes.catalogprod.category.dto.CategoryResponseDTO;
 import com.masbytes.catalogprod.category.exception.database.CategoryAlreadyExistsException;
+import com.masbytes.catalogprod.category.exception.database.CategoryNotFoundException;
 import com.masbytes.catalogprod.category.exception.validation.CategoryInvalidDataException;
 import com.masbytes.catalogprod.category.mapper.CategoryMapper;
 import com.masbytes.catalogprod.category.model.Category;
@@ -153,6 +160,85 @@ public class CategoryServiceImplTest {
         assertEquals("Category description cannot be null or empty", exception.getMessage());
 
         verifyNoInteractions(categoryRepository);
+    }
+
+    @Test
+    void getCategoryById_shouldThrowException_whenIdIsNull() {
+        // Arrange
+        Long id = null;
+
+        // Act & Assert
+        assertThrows(CategoryInvalidDataException.class, () -> categoryService.getCategoryById(id));
+    }
+
+    @Test
+    void getCategoryById_shouldThrowException_whenCategoryNotFound() {
+        // Arrange
+        Long id = 1L;
+        when(categoryRepository.findById(id)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CategoryNotFoundException.class, () -> categoryService.getCategoryById(id));
+    }
+
+    @Test
+    void givenValidId_whenCategoryExists_thenReturnsExpectedResponse() {
+        // Arrange
+        Long id = 1L;
+
+        Category category = new Category();
+        category.setId(id);
+        category.setName("TECH");
+        category.setDescription("TECHNOLOGY");
+        category.setStatus(Status.ACTIVE);
+        category.setCreatedAt(LocalDateTime.now());
+
+        CategoryResponseDTO expectedResponse = new CategoryResponseDTO(
+                id, "TECH", "TECHNOLOGY", category.getCreatedAt(), null, null, Status.ACTIVE);
+
+        when(categoryRepository.findById(id)).thenReturn(Optional.of(category));
+        // Simulamos el mapper real, aunque en el proyecto es estatico, igual se puede
+        // mockear y modularizarlo mas adelante.
+        try (MockedStatic<CategoryMapper> mapperMock = mockStatic(CategoryMapper.class)) {
+            mapperMock.when(() -> CategoryMapper.toResponseDTO(category)).thenReturn(expectedResponse);
+
+            // Act
+            CategoryResponseDTO actualResponse = categoryService.getCategoryById(id);
+
+            // Assert
+            assertNotNull(actualResponse);
+            assertEquals(expectedResponse.getId(), actualResponse.getId());
+            assertEquals(expectedResponse.getName(), actualResponse.getName());
+            assertEquals(expectedResponse.getDescription(), actualResponse.getDescription());
+        }
+    }
+
+    @Test
+    void givenValidId_whenCategoryHasNullFields_thenReturnsPartialData() {
+        // Arrange
+        Long id = 2L;
+
+        Category category = new Category();
+        category.setId(id);
+        category.setName("FOOD");
+        category.setDescription(null); // intentionally null
+        category.setStatus(Status.ACTIVE);
+
+        CategoryResponseDTO expectedResponse = new CategoryResponseDTO(
+                id, "FOOD", null, null, null, null, Status.ACTIVE);
+
+        when(categoryRepository.findById(id)).thenReturn(Optional.of(category));
+        try (MockedStatic<CategoryMapper> mapperMock = mockStatic(CategoryMapper.class)) {
+            mapperMock.when(() -> CategoryMapper.toResponseDTO(category)).thenReturn(expectedResponse);
+
+            // Act
+            CategoryResponseDTO actualResponse = categoryService.getCategoryById(id);
+
+            // Assert
+            assertNotNull(actualResponse);
+            assertEquals("FOOD", actualResponse.getName());
+            assertNull(actualResponse.getDescription());
+        }
     }
 
 }
