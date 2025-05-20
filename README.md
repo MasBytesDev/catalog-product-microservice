@@ -1,63 +1,60 @@
-# 📦 Catalog Product Microservice
+# Catalog Product Microservice
 
-A Spring Boot microservice designed to manage product categories in a modular architecture. Part of a larger backend system for inventory and sales control.
+This microservice is responsible for managing product categories in an e-commerce system. It is built with Java and Spring Boot, following best practices for backend development and clean architecture.
 
-## 🚀 Features
+## Features
 
-- Create, update, disable, enable and delete product categories
-- Filter by status (`ACTIVE`, `INACTIVE`, `DELETED`)
+- CRUD operations for product categories
+- Soft delete functionality with status management
 - Pagination and filtering support
-- Input validation and exception handling
-- Unit testing using JUnit and Mockito
+- Detailed validation and exception handling
 
-## ⚙️ Tech Stack
+## Technologies Used
 
-- Java 21
-- Spring Boot
+- Java 17
+- Spring Boot 3.x
 - Spring Data JPA
-- H2 (for testing)
-- JUnit 5
-- Mockito
+- Hibernate
 - Maven
+- JUnit 5 & Mockito for testing
 
-## 📁 Project Structure
+## Project Structure
 
 ```
-catalog-product-microservice/
-├── src/
-│   ├── main/
-│   │   ├── java/com/masbytes/catalog/
-│   │   └── resources/
-│   └── test/
+catalog-product-microservice
+│
+├── src/main/java/com/example/catalog
+│   ├── controller          # REST controllers
+│   ├── dto                 # Data transfer objects
+│   ├── entity              # JPA entities
+│   ├── exception           # Custom exceptions
+│   ├── mapper              # Mappers for DTOs and entities
+│   ├── repository          # Spring Data JPA repositories
+│   ├── service             # Service interfaces and implementations
+│   └── validator           # Validation utilities
+│
+├── src/test/java/com/example/catalog
+│   └── service             # Unit and integration tests for services
+│
+├── src/main/resources
+│   ├── application.yml     # Application configuration
+│   └── db                  # Database scripts
+│
 ├── .gitignore
 ├── pom.xml
-├── README.md
+└── README.md
 ```
 
-## 🧪 Testing
+## How to Run
 
-Run tests with:
+1. Clone the repository
+2. Build the project using Maven: `mvn clean install`
+3. Run the Spring Boot application: `mvn spring-boot:run`
 
-```bash
-./mvnw test
-```
+## Contribution
 
-## 🧙 Author
+Feel free to fork and submit pull requests. Please follow the code style and include tests for new features.
 
-**Berto** – [@MasBytesDev](https://github.com/MasBytesDev)
+## License
 
----
-
-### 📌 Notes
-
-- This microservice is part of a learning process in backend development with Java and Spring.
-- Contributions are welcome (PRs, suggestions, improvements).
-
----
-
-## 🗺️ Roadmap
-
-- [ ] Add integration tests
-- [ ] Add Swagger/OpenAPI documentation
-- [ ] Containerize with Docker
-- [ ] Add service discovery (Eureka or similar)
+MIT License
