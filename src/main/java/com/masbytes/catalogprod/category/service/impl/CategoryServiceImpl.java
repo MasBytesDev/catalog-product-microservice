@@ -163,13 +163,14 @@ public class CategoryServiceImpl implements CategoryService {
      * Searches for categories by partial name.
      * 
      * Validates the input name, checks if any categories match the partial name,
-     * and returns a list of CategoryResponseDTOs containing the matching categories.
+     * and returns a list of CategoryResponseDTOs containing the matching
+     * categories.
      * 
      * @param name The partial name to search for.
      * @return a list of CategoryResponseDTOs containing the matching categories.
-     * @throws CategoryInvalidDataException   if the name is null or empty.
-     * @throws CategoryNotFoundException      if no categories are found matching the
-     *                                        partial name.
+     * @throws CategoryInvalidDataException if the name is null or empty.
+     * @throws CategoryNotFoundException    if no categories are found matching the
+     *                                      partial name.
      */
 
     @Override
@@ -177,10 +178,10 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryResponseDTO> searchByPartialName(String name) {
         // Check if the name is null or empty and throw an exception if it is
         // This method is used to search for categories by partial name
-        if(name == null || name.trim().isEmpty()) {
+        if (name == null || name.trim().isEmpty()) {
             throw new CategoryInvalidDataException("Category name cannot be null or empty");
         }
-        
+
         // Normalize the category name by trimming and converting it to uppercase
         // to ensure consistent comparison
         String normalizedName = name.trim();
@@ -191,7 +192,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         // Check if any categories were found
         // If no categories were found, throw a CategoryNotFoundException
-        if(categories.isEmpty()) {
+        if (categories.isEmpty()) {
             throw new CategoryNotFoundException("No categories found matching: " + normalizedName);
         }
 
@@ -202,10 +203,52 @@ public class CategoryServiceImpl implements CategoryService {
                 .toList();
     }
 
+    /**
+     * Updates an existing category.
+     * 
+     * Validates the input ID and DTO, checks if the category exists in the
+     * database,
+     * and then updates the category with the new data.
+     * 
+     * @param id  The ID of the category to update.
+     * @param dto The UpdateCategoryDTO containing the new category data.
+     * @return The updated CategoryResponseDTO.
+     * @throws CategoryInvalidDataException   If the ID is null or the DTO is null.
+     * @throws CategoryNotFoundException      If the category with the given ID is not
+     *                                        found
+     */
+
     @Override
+    @Transactional
     public CategoryResponseDTO updateCategory(Long id, UpdateCategoryDTO dto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateCategory'");
+        // Validate the input data
+        // Check if the ID is null and throw an exception if it is
+        if (id == null) {
+            throw new CategoryInvalidDataException("Category ID cannot be null");
+        }
+
+        // Check if the DTO is null and throw an exception if it is
+        // This method is used to update an existing category
+        if (dto == null) {
+            throw new CategoryInvalidDataException("Category data cannot be null");
+        }
+
+        // Normalize the category name by trimming and converting it to uppercase
+        // to ensure consistent comparison
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + id));
+
+        // Update the category entity with the new data
+        // using the CategoryMapper to convert the DTO to an entity
+        CategoryMapper.updateEntity(category, dto);
+
+        // Save the updated category to the database
+        // and return the response DTO
+        Category updatedCategory = categoryRepository.save(category);
+
+        // Return the updated category as a response DTO
+        // by using the CategoryMapper to convert the updated entity to a DTO
+        return CategoryMapper.toResponseDTO(updatedCategory);
     }
 
     @Override

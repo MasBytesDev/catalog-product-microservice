@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.masbytes.catalogprod.category.dto.CategoryRequestDTO;
 import com.masbytes.catalogprod.category.dto.CategoryResponseDTO;
+import com.masbytes.catalogprod.category.dto.UpdateCategoryDTO;
 import com.masbytes.catalogprod.category.exception.database.CategoryAlreadyExistsException;
 import com.masbytes.catalogprod.category.exception.database.CategoryNotFoundException;
 import com.masbytes.catalogprod.category.exception.validation.CategoryInvalidDataException;
@@ -384,6 +385,92 @@ public class CategoryServiceImplTest {
             verify(categoryRepository).findByNameContainingIgnoreCase(partialName.trim());
             // No se puede verificar métodos estáticos con verify(), se verifica
             // indirectamente por comportamiento
+        }
+    }
+
+    @Test
+    void shouldThrowExceptionWhenIdIsNull() {
+        UpdateCategoryDTO dto = new UpdateCategoryDTO();
+        Exception exception = assertThrows(CategoryInvalidDataException.class, () -> {
+            categoryService.updateCategory(null, dto);
+        });
+
+        assertEquals("Category ID cannot be null", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDtoIsNull() {
+        Long id = 1L;
+
+        Exception exception = assertThrows(CategoryInvalidDataException.class, () -> {
+            categoryService.updateCategory(id, null);
+        });
+
+        assertEquals("Category data cannot be null", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCategoryNotFound() {
+        Long id = 1L;
+        UpdateCategoryDTO dto = new UpdateCategoryDTO();
+
+        when(categoryRepository.findById(id)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(CategoryNotFoundException.class, () -> {
+            categoryService.updateCategory(id, dto);
+        });
+
+        assertEquals("Category not found with ID: " + id, exception.getMessage());
+    }
+
+    @Test
+    void shouldUpdateCategorySuccessfully() {
+        Long id = 1L;
+        UpdateCategoryDTO dto = new UpdateCategoryDTO();
+        dto.setName("updated name");
+        dto.setDescription("updated description");
+        dto.setStatus(Status.INACTIVE);
+
+        Category existingCategory = new Category();
+        existingCategory.setId(id);
+        existingCategory.setName("OLD NAME");
+        existingCategory.setDescription("OLD DESC");
+        existingCategory.setStatus(Status.INACTIVE);
+
+        Category updatedCategory = new Category();
+        updatedCategory.setId(id);
+        updatedCategory.setName("UPDATED NAME");
+        updatedCategory.setDescription("UPDATED DESCRIPTION");
+        updatedCategory.setStatus(Status.ACTIVE);
+        updatedCategory.setCreatedAt(LocalDateTime.now().minusDays(1));
+        updatedCategory.setUpdatedAt(LocalDateTime.now());
+
+        CategoryResponseDTO expectedResponse = new CategoryResponseDTO(
+                updatedCategory.getId(),
+                updatedCategory.getName(),
+                updatedCategory.getDescription(),
+                updatedCategory.getCreatedAt(),
+                updatedCategory.getUpdatedAt(),
+                updatedCategory.getDeletedAt(),
+                updatedCategory.getStatus());
+
+        try (MockedStatic<CategoryMapper> mapperMock = mockStatic(CategoryMapper.class)) {
+            when(categoryRepository.findById(id)).thenReturn(Optional.of(existingCategory));
+            // No need to mock updateEntity since it's void (but we can verify later if
+            // needed)
+            when(categoryRepository.save(any(Category.class))).thenReturn(updatedCategory);
+            mapperMock.when(() -> CategoryMapper.toResponseDTO(updatedCategory)).thenReturn(expectedResponse);
+
+            CategoryResponseDTO actualResponse = categoryService.updateCategory(id, dto);
+
+            assertNotNull(actualResponse);
+            assertEquals(expectedResponse.getId(), actualResponse.getId());
+            assertEquals(expectedResponse.getName(), actualResponse.getName());
+            assertEquals(expectedResponse.getDescription(), actualResponse.getDescription());
+            assertEquals(expectedResponse.getStatus(), actualResponse.getStatus());
+
+            mapperMock.verify(() -> CategoryMapper.updateEntity(existingCategory, dto));
+            mapperMock.verify(() -> CategoryMapper.toResponseDTO(updatedCategory));
         }
     }
 
