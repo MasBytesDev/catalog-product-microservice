@@ -11,7 +11,7 @@ This microservice is responsible for managing product categories in an e-commerc
 
 ## Technologies Used
 
-- Java 17
+- Java 21
 - Spring Boot 3.x
 - Spring Data JPA
 - Hibernate
