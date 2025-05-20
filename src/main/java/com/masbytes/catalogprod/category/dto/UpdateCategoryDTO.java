@@ -13,7 +13,7 @@ public class UpdateCategoryDTO {
     private String name;
 
     @NotBlank(message = "DESCRIPTION field is required")
-    @Size(min = 5, max = 255, message = "DESCRIPTION field must be between 3 and 255 characters")
+    @Size(min = 5, max = 255, message = "DESCRIPTION field must be between 5 and 255 characters")
     private String description;
 
     /**

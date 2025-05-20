@@ -50,7 +50,7 @@ public class Category extends AuditingEntity {
         this.description = description;
     }
 
-    // Constructor with ID
+    // Constructor with ID only for testing
     public Category(Long id, String name, String description) {
         super();
         this.id = id;

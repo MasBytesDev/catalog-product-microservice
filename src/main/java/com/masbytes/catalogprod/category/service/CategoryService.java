@@ -1,14 +1,15 @@
 package com.masbytes.catalogprod.category.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.masbytes.catalogprod.category.dto.CategoryFilterDTO;
 import com.masbytes.catalogprod.category.dto.CategoryRequestDTO;
 import com.masbytes.catalogprod.category.dto.CategoryResponseDTO;
 import com.masbytes.catalogprod.category.dto.UpdateCategoryDTO;
+import com.masbytes.catalogprod.category.exception.database.CategoryNotFoundException;
 import com.masbytes.catalogprod.enums.Status;
 
 public interface CategoryService {
@@ -35,13 +36,14 @@ public interface CategoryService {
 
     /**
      * Retrieves a category by its name.
-     *
+     * 
      * @param name the name of the category to retrieve
-     * @return an {@link Optional} containing the {@link CategoryResponseDTO} if
-     *         found, or an empty {@code Optional} otherwise
+     * @return the category as a {@link CategoryResponseDTO}
+     * @throws CategoryNotFoundException if no category with the given name exists
+     *         or if the category is logically deleted
      */
 
-    Optional<CategoryResponseDTO> getCategoryByName(String name);
+    CategoryResponseDTO getCategoryByName(String name);
 
     /**
      * Searches for categories whose names contain the given partial string.
@@ -110,13 +112,14 @@ public interface CategoryService {
     List<CategoryResponseDTO> getCategoryByStatus(Status status);
 
     /**
-     * Retrieves a paginated list of categories based on the provided filters.
+     * Retrieves all categories with pagination and optional filtering.
      * 
-     * @param pageable pagination information (page number, size, sorting)
-     * @param filter   optional filter criteria (e.g., name, description, status)
-     * @return a {@link Page} of {@link CategoryResponseDTO} matching the filter and
-     *         pagination
+     * @param pageable the pagination information
+     * @param filter the filter criteria to apply (optional)
+     * @return a {@link Page} of {@link CategoryResponseDTO} objects matching the
+     *         filter criteria
      */
-    Page<CategoryResponseDTO> getAllCategories(Pageable pageable, CategoryRequestDTO filter);
+
+    Page<CategoryResponseDTO> getAllCategories(Pageable pageable, CategoryFilterDTO filter);
 
 }

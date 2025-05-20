@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.masbytes.catalogprod.category.dto.CategoryFilterDTO;
 import com.masbytes.catalogprod.category.dto.CategoryRequestDTO;
 import com.masbytes.catalogprod.category.dto.CategoryResponseDTO;
 import com.masbytes.catalogprod.category.dto.UpdateCategoryDTO;
@@ -21,7 +22,6 @@ import com.masbytes.catalogprod.category.repository.CategoryRepository;
 import com.masbytes.catalogprod.category.service.CategoryService;
 import com.masbytes.catalogprod.category.validation.CategoryValidator;
 import com.masbytes.catalogprod.enums.Status;
-
 
 /**
  * CategoryServiceImpl
@@ -117,10 +117,47 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toResponseDTO(category);
     }
 
+    /**
+     * Retrieves a category by its name.
+     * 
+     * Validates the input name, checks if the category exists in the database,
+     * and returns the corresponding CategoryResponseDTO.
+     * 
+     * @param name The name of the category to retrieve.
+     * @return a CategoryResponseDTO containing the category data.
+     * @throws
+     * CategoryInvalidDataException         if the name is null or empty.
+     */
+
     @Override
-    public Optional<CategoryResponseDTO> getCategoryByName(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCategoryByName'");
+    @Transactional(readOnly = true)
+    public CategoryResponseDTO getCategoryByName(String name) {
+        // Check if the name is null or empty and throw an exception if it is
+        if (name == null || name.trim().isEmpty()) {
+            throw new CategoryInvalidDataException("Category name cannot be null or empty");
+        }
+
+        // Normalize the category name by trimming and converting it to uppercase
+        // to ensure consistent comparison
+        String normalizedName = name.trim().toUpperCase(Locale.ROOT);
+
+        // Find the category by name using the repository and map it to a response DTO
+        // If the category is not found, throw a CategoryNotFoundException
+        Category category = categoryRepository.findByName(normalizedName)
+                .orElseThrow(() -> new CategoryNotFoundException("Category not found with name: " + normalizedName));
+
+        // Check if the category is deleted
+        // If it is, throw a CategoryNotFoundException
+        // to indicate that the category is not available
+        // If the category is not deleted, return the mapped response DTO
+        // If the category is deleted, throw a CategoryNotFoundException
+        if (category.getStatus() == Status.DELETED) {
+            throw new CategoryNotFoundException("Category with name " + normalizedName + " is deleted");
+        }
+
+        // Map the found category to a response DTO
+        // and return it wrapped in an Optional
+        return CategoryMapper.toResponseDTO(category);
     }
 
     @Override
@@ -160,11 +197,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Page<CategoryResponseDTO> getAllCategories(Pageable pageable, CategoryRequestDTO filter) {
+    public Page<CategoryResponseDTO> getAllCategories(Pageable pageable, CategoryFilterDTO filter) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getAllCategories'");
     }
-
-    // Implement the methods defined in the CategoryService interface
 
 }

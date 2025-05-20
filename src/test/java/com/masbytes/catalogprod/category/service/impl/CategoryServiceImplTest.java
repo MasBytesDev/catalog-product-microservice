@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.masbytes.catalogprod.category.dto.CategoryRequestDTO;
@@ -239,6 +241,74 @@ public class CategoryServiceImplTest {
             assertEquals("FOOD", actualResponse.getName());
             assertNull(actualResponse.getDescription());
         }
+    }
+
+    @Test
+    void givenValidName_whenCategoryExists_thenReturnsExpectedResponse() {
+        // Arrange
+        String name = "tech";
+        String normalizedName = name.trim().toUpperCase(Locale.ROOT);
+
+        Category category = new Category();
+        category.setId(1L);
+        category.setName(normalizedName);
+        category.setDescription("TECHNOLOGY");
+        category.setStatus(Status.ACTIVE);
+        category.setCreatedAt(LocalDateTime.now());
+
+        CategoryResponseDTO expectedResponse = new CategoryResponseDTO(
+                category.getId(),
+                category.getName(),
+                category.getDescription(),
+                category.getCreatedAt(),
+                null,
+                null,
+                Status.ACTIVE);
+
+        when(categoryRepository.findByName(normalizedName)).thenReturn(Optional.of(category));
+
+        try (MockedStatic<CategoryMapper> mapperMock = mockStatic(CategoryMapper.class)) {
+            mapperMock.when(() -> CategoryMapper.toResponseDTO(category)).thenReturn(expectedResponse);
+
+            // Act
+            CategoryResponseDTO actualResponse = categoryService.getCategoryByName(name);
+
+            // Assert
+            assertNotNull(actualResponse);
+            assertEquals(expectedResponse.getId(), actualResponse.getId());
+            assertEquals(expectedResponse.getName(), actualResponse.getName());
+            assertEquals(expectedResponse.getDescription(), actualResponse.getDescription());
+        }
+    }
+
+    @Test
+    void givenNullName_whenGetCategory_thenThrowsCategoryInvalidDataException() {
+        // Arrange
+        String name = null;
+
+        // Act & Assert
+        assertThrows(CategoryInvalidDataException.class, () -> categoryService.getCategoryByName(name));
+    }
+
+    @Test
+    void givenBlankName_whenGetCategory_thenThrowsCategoryInvalidDataException() {
+        // Arrange
+        String name = "  ";
+
+        // Act & Assert
+        assertThrows(CategoryInvalidDataException.class, () -> categoryService.getCategoryByName(name));
+    }
+
+    @Test
+    void givenValidName_whenCategoryNotExists_thenThrowsCategoryNotFoundException() {
+        // Arrange
+        String name = "gaming";
+        String normalizedName = name.trim().toUpperCase(Locale.ROOT);
+
+        when(categoryRepository.findByName(normalizedName)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(CategoryNotFoundException.class, () -> categoryService.getCategoryByName(name));
     }
 
 }
