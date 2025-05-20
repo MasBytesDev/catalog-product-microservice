@@ -159,10 +159,47 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toResponseDTO(category);
     }
 
+    /**
+     * Searches for categories by partial name.
+     * 
+     * Validates the input name, checks if any categories match the partial name,
+     * and returns a list of CategoryResponseDTOs containing the matching categories.
+     * 
+     * @param name The partial name to search for.
+     * @return a list of CategoryResponseDTOs containing the matching categories.
+     * @throws CategoryInvalidDataException   if the name is null or empty.
+     * @throws CategoryNotFoundException      if no categories are found matching the
+     *                                        partial name.
+     */
+
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryResponseDTO> searchByPartialName(String name) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchByPartialName'");
+        // Check if the name is null or empty and throw an exception if it is
+        // This method is used to search for categories by partial name
+        if(name == null || name.trim().isEmpty()) {
+            throw new CategoryInvalidDataException("Category name cannot be null or empty");
+        }
+        
+        // Normalize the category name by trimming and converting it to uppercase
+        // to ensure consistent comparison
+        String normalizedName = name.trim();
+
+        // Find categories by partial name using the repository
+        // and map them to response DTOs
+        List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(normalizedName);
+
+        // Check if any categories were found
+        // If no categories were found, throw a CategoryNotFoundException
+        if(categories.isEmpty()) {
+            throw new CategoryNotFoundException("No categories found matching: " + normalizedName);
+        }
+
+        // Return the list of mapped response DTOs
+        // by using the CategoryMapper to convert each category entity to a DTO
+        return categories.stream()
+                .map(CategoryMapper::toResponseDTO)
+                .toList();
     }
 
     @Override

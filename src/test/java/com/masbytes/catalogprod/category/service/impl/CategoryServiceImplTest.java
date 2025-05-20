@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
@@ -12,6 +13,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -308,6 +311,80 @@ public class CategoryServiceImplTest {
 
         // Act & Assert
         assertThrows(CategoryNotFoundException.class, () -> categoryService.getCategoryByName(name));
+    }
+
+    @Test
+    void whenNameIsNull_thenThrowsCategoryInvalidDataException() {
+        assertThrows(CategoryInvalidDataException.class,
+                () -> categoryService.searchByPartialName(null));
+    }
+
+    @Test
+    void whenNameIsEmpty_thenThrowsCategoryInvalidDataException() {
+        assertThrows(CategoryInvalidDataException.class,
+                () -> categoryService.searchByPartialName("   "));
+    }
+
+    @Test
+    void whenNoCategoriesFound_thenThrowsCategoryNotFoundException() {
+        String partialName = "Electronics";
+
+        when(categoryRepository.findByNameContainingIgnoreCase(partialName.trim()))
+                .thenReturn(Collections.emptyList());
+
+        assertThrows(CategoryNotFoundException.class,
+                () -> categoryService.searchByPartialName(partialName));
+
+        verify(categoryRepository).findByNameContainingIgnoreCase(partialName.trim());
+    }
+
+    @Test
+    void whenCategoriesFound_thenReturnsListOfDTOs() {
+        String partialName = "Electronics";
+
+        LocalDateTime now = LocalDateTime.now();
+
+        Category cat1 = new Category(1L, "Electronics", "Category of electronic devices");
+        Category cat2 = new Category(2L, "Electronic Gadgets", "Category of electronic gadgets and accessories");
+
+        List<Category> categories = List.of(cat1, cat2);
+
+        CategoryResponseDTO dto1 = new CategoryResponseDTO(
+                1L,
+                "Electronics",
+                "Category of electronic devices",
+                now.minusDays(5),
+                now.minusDays(1),
+                null,
+                Status.ACTIVE);
+
+        CategoryResponseDTO dto2 = new CategoryResponseDTO(
+                2L,
+                "Electronic Gadgets",
+                "Category of electronic gadgets and accessories",
+                now.minusDays(10),
+                now.minusDays(2),
+                null,
+                Status.ACTIVE);
+
+        when(categoryRepository.findByNameContainingIgnoreCase(partialName.trim()))
+                .thenReturn(categories);
+
+        try (MockedStatic<CategoryMapper> mapperMock = mockStatic(CategoryMapper.class)) {
+            mapperMock.when(() -> CategoryMapper.toResponseDTO(cat1)).thenReturn(dto1);
+            mapperMock.when(() -> CategoryMapper.toResponseDTO(cat2)).thenReturn(dto2);
+
+            List<CategoryResponseDTO> result = categoryService.searchByPartialName(partialName);
+
+            assertNotNull(result);
+            assertEquals(2, result.size());
+            assertTrue(result.contains(dto1));
+            assertTrue(result.contains(dto2));
+
+            verify(categoryRepository).findByNameContainingIgnoreCase(partialName.trim());
+            // No se puede verificar métodos estáticos con verify(), se verifica
+            // indirectamente por comportamiento
+        }
     }
 
 }
