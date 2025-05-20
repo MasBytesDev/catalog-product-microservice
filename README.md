@@ -1,60 +1,121 @@
-# Catalog Product Microservice
+# 📦 Catalog Product Microservice
 
-This microservice is responsible for managing product categories in an e-commerce system. It is built with Java and Spring Boot, following best practices for backend development and clean architecture.
+Este microservicio es responsable de gestionar las categorías de productos en un sistema de facturación e inventario. Está construido con Java y Spring Boot, siguiendo las mejores prácticas de desarrollo backend y una arquitectura limpia.
 
-## Features
+---
 
-- CRUD operations for product categories
-- Soft delete functionality with status management
-- Pagination and filtering support
-- Detailed validation and exception handling
+## 🚀 Características
 
-## Technologies Used
+- Operaciones CRUD para categorías de productos
+- Eliminación lógica con gestión de estado
+- Paginación y soporte de filtrado
+- Validación detallada y manejo de excepciones
+
+---
+
+## 🛠️ Tecnologías Utilizadas
 
 - Java 21
 - Spring Boot 3.x
 - Spring Data JPA
 - Hibernate
 - Maven
-- JUnit 5 & Mockito for testing
+- JUnit 5 & Mockito para pruebas
 
-## Project Structure
+---
 
-```
-catalog-product-microservice
-│
-├── src/main/java/com/example/catalog
-│   ├── controller          # REST controllers
-│   ├── dto                 # Data transfer objects
-│   ├── entity              # JPA entities
-│   ├── exception           # Custom exceptions
-│   ├── mapper              # Mappers for DTOs and entities
-│   ├── repository          # Spring Data JPA repositories
-│   ├── service             # Service interfaces and implementations
-│   └── validator           # Validation utilities
-│
-├── src/test/java/com/example/catalog
-│   └── service             # Unit and integration tests for services
-│
-├── src/main/resources
-│   ├── application.yml     # Application configuration
-│   └── db                  # Database scripts
-│
-├── .gitignore
+## 📁 Estructura del Proyecto
+
+```bash
+catalog-product-microservice/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── com/
+│   │   │       └── example/
+│   │   │           └── catalog/
+│   │   │               ├── controller/
+│   │   │               ├── model/
+│   │   │               ├── repository/
+│   │   │               └── service/
+│   └── test/
+│       └── java/
+│           └── com/
+│               └── example/
+│                   └── catalog/
 ├── pom.xml
 └── README.md
 ```
 
-## How to Run
+---
 
-1. Clone the repository
-2. Build the project using Maven: `mvn clean install`
-3. Run the Spring Boot application: `mvn spring-boot:run`
+## ⚙️ Configuración y Ejecución
 
-## Contribution
+### Prerrequisitos
 
-Feel free to fork and submit pull requests. Please follow the code style and include tests for new features.
+- Java 21
+- Maven 3.8+
 
-## License
+### Pasos para Ejecutar
 
-MIT License
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/MasBytesDev/catalog-product-microservice.git
+   ```
+
+2. Navega al directorio del proyecto:
+   ```bash
+   cd catalog-product-microservice
+   ```
+
+3. Construye el proyecto:
+   ```bash
+   mvn clean install
+   ```
+
+4. Ejecuta la aplicación:
+   ```bash
+   mvn spring-boot:run
+   ```
+
+---
+
+
+## 🧪 Pruebas
+
+El proyecto incluye pruebas unitarias utilizando JUnit 5 y Mockito. Para ejecutar las pruebas:
+
+```bash
+mvn test
+```
+
+---
+
+## 📌 Notas Adicionales
+
+- La aplicación utiliza una base de datos en memoria H2 para facilitar las pruebas y el desarrollo.
+- Se recomienda configurar una base de datos persistente para entornos de producción.
+
+---
+
+## 🤝 Contribuciones
+
+¡Las contribuciones son bienvenidas! Si deseas mejorar este proyecto, por favor sigue estos pasos:
+
+1. Haz un fork del repositorio.
+2. Crea una nueva rama: `git checkout -b feature/nueva-funcionalidad`
+3. Realiza tus cambios y haz commits: `git commit -m 'Agrega nueva funcionalidad'`
+4. Envía tus cambios al repositorio remoto: `git push origin feature/nueva-funcionalidad`
+5. Abre un Pull Request.
+
+---
+
+## 📄 Licencia
+
+Este proyecto está licenciado bajo la Licencia MIT.
+
+---
+
+## 📬 Contacto
+
+Para consultas o sugerencias, por favor contacta a [MasBytesDev](mailto:dev.bertosv@gmail.com).
